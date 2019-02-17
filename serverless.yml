@@ -48,6 +48,7 @@ functions:
     description: Periodially fetches tweets related with hashtag defined and stores into the ${self:custom.dynamodb_tables.fetched_tweets} DynamoDB table for later analysis
     environment:
       fetched_tweets_table: ${self:custom.dynamodb_tables.fetched_tweets}
+      hashtag: ${self:custom.analyzed_hashtag}
     events:
       - schedule: rate(10 minutes)
   TweetSentimentAnalyzer:
