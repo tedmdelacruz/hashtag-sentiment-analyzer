@@ -1,0 +1,132 @@
+service: hashtag-sentiment-analyzer
+
+provider:
+  name: aws
+  runtime: python3.6
+  region: ap-southeast-1
+  stackName: hashtag-sentiment-analyzer
+  stackTags:
+    service: hashtag-sentiment-analyzer
+  environment:
+    aws_region: ${self:provider.region}
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - dynamodb:DescribeTable
+      - dynamodb:Scan
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:BatchWriteItem
+    Resource: [
+      "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.dynamodb_tables.fetched_tweets}",
+      "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.dynamodb_tables.analyzed_tweets}"
+    ]
+  - Effect: Allow
+    Action:
+      - comprehend:DetectSentiment
+    Resource: ["*"]
+    
+custom:
+  analyzed_hashtag: PyConAPAC2019
+  dynamodb_tables:
+    fetched_tweets: fetched_tweets
+    analyzed_tweets: analyzed_tweets
+  buckets:
+    results_page: sentiment-results-page
+  pythonRequirements:
+    dockerizePip: non-linux
+  
+package:
+  exclude:
+    - node_modules/**
+    - tests/**
+
+functions:
+  TweetFetcher:
+    name: tweet_fetcher
+    handler: func/tweet_fetcher.lambda_handler
+    description: Periodially fetches tweets related with hashtag defined and stores into the ${self:custom.dynamodb_tables.fetched_tweets} DynamoDB table for later analysis
+    environment:
+      fetched_tweets_table: ${self:custom.dynamodb_tables.fetched_tweets}
+    events:
+      - schedule: rate(10 minutes)
+  TweetSentimentAnalyzer:
+    name: sentiment_analyzer
+    description: Listens to INSERT events in the ${self:custom.dynamodb_tables.fetched_tweets} and runs AWS Comprehend on each tweet to get a sentiment analysis report. Analyzed tweets are inserted into the ${self:custom.dynamodb_tables.analyzed_tweets} DynamoDB table
+    handler: func/tweet_sentiment_analyzer.lambda_handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - FetchedTweetsTable
+              - StreamArn
+    environment:
+      analyzed_tweets_table: ${self:custom.dynamodb_tables.analyzed_tweets}
+      
+  ResultsPageGenerator:
+    name: results_page_generator
+    handler: func/results_page_generator.lambda_handler
+
+
+resources:
+  Resources:
+    FetchedTweetsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamodb_tables.fetched_tweets}
+        AttributeDefinitions:
+          - AttributeName: tweet_id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: tweet_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    AnalyzedTweetsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamodb_tables.analyzed_tweets}
+        AttributeDefinitions:
+          - AttributeName: tweet_id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: tweet_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    ResultsPageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.buckets.results_page}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+
+    ResultsPageBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ResultsPageBucket 
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action:
+              - s3:GetObject
+              Resource: 
+                Fn::Join: [
+                  "", ["arn:aws:s3:::", {"Ref": ResultsPageBucket },"/*"]
+                ]
+                
+plugins:
+  - serverless-python-requirements
