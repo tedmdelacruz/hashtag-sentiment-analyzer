@@ -28,9 +28,9 @@ def lambda_handler(event, context):
         text = tweet['text']
         result = comprehend.detect_sentiment(Text=text,
             LanguageCode='en')
-        tweet['analysis_results'] = json.dumps(result)
         logger.info(f'Analyzed tweet: "{text}"')
         logger.info(f'Analysis results: {result}')
+        tweet['sentiment'] = result['Sentiment']
         results.append(tweet)
 
     dynamodb = boto3.resource('dynamodb')
