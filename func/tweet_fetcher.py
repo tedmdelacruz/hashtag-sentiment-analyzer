@@ -1,48 +1,74 @@
-"""Tweet Fetcher
-
-Periodically fetches tweets using specified hashtag and writes the tweets into
-DynamoDB.
+"""Periodically fetches tweets using specified hashtag and writes the tweets
+into DynamoDB.
 """
 import boto3
 import logging
 import os
-
-# @FIXME
-import random
-from essential_generators import DocumentGenerator
+import twitter
 
 FETCHED_TWEETS_TABLE = os.environ['fetched_tweets_table']
 HASHTAG = os.environ['hashtag']
+
+TWITTER_API_CONSUMER_KEY = os.environ['twitter_api_consumer_key']
+TWITTER_API_CONSUMER_SECRET = os.environ['twitter_api_consumer_secret']
+TWITTER_API_ACCESS_TOKEN_KEY = os.environ['twitter_api_access_token_key']
+TWITTER_API_ACCESS_TOKEN_SECRET = os.environ['twitter_api_access_token_secret']
+
+ssm_client = boto3.client('ssm')
+def get_secret(key):
+    response = ssm_client.get_parameter(
+        Name=key,
+        WithDecryption=True
+    )
+    return response['Parameter']['Value']
+
+consumer_secret = get_secret(TWITTER_API_CONSUMER_SECRET)
+access_token_secret = get_secret(TWITTER_API_ACCESS_TOKEN_SECRET)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def get_tweets(hashtag):
-    """Fetches tweets using the specified hashtag from Twitter API"""
-    # @TODO Fix this once your Twitter Developer account has been approved
-    gen = DocumentGenerator()
-    template = {
-        'url': 'url',
-        'handle': 'word',
-        'author': 'name',
-        'text': 'sentence'
+def format_tweet(tweet):
+    """Formats twitter.Status models into desired format in DynamoDB"""
+    user = tweet['user']
+    return {
+        'tweet_id': tweet['id'],
+        'hashtag': HASHTAG,
+        'text': tweet['text'],
+        'user': {
+            'user_id': user['id'],
+            'name': user['name'],
+            'handle': user['screen_name'],
+            'profile_image_url': user['profile_image_url'],
+            'profile_url': f"https://twitter.com/{user['screen_name']}"
+        }
     }
-    gen.set_template(template)
-    return gen.documents(10)
+
+
+def get_tweets(hashtag):
+    """Fetch tweets using specified hashtag using Twitter API"""
+    api = twitter.Api(consumer_key=TWITTER_API_CONSUMER_KEY,
+                      consumer_secret=consumer_secret,
+                      access_token_key=TWITTER_API_ACCESS_TOKEN_KEY,
+                      access_token_secret=access_token_secret)
+
+    results = api.GetSearch(
+        raw_query=f"q=%23{HASHTAG}%20&result_type=recent&since=2019-01-01&count=100")
+
+    return [
+        format_tweet(tweet.AsDict())
+        for tweet in results
+    ]
 
 
 def lambda_handler(event, context):
+    logger.info(f'Fetching tweets related to #{HASHTAG}...')
     fetched_tweets = get_tweets(HASHTAG)
-    logger.info(f'Fetched {len(fetched_tweets)} tweets...')
+    logger.info(f'Fetched {len(fetched_tweets)} tweets')
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(FETCHED_TWEETS_TABLE)
     with table.batch_writer() as batch:
         for tweet in fetched_tweets:
-            batch.put_item(
-                Item={
-                    'tweet_id': random.randint(10000, 99999), # @FIXME
-                    **tweet
-                }
-            )
+            batch.put_item(Item=tweet)

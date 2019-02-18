@@ -1,6 +1,4 @@
-"""Tweet Sentiment Analyzer
-
-Listens to INSERT events in the fetched_tweets_table DynamoDB stream for new
+"""Listens to INSERT events in the fetched_tweets_table DynamoDB stream for new
 tweet records and then runs each tweet into AWS Comprehend for
 sentiment analysis. Writes the results into the analyzed_tweets_table.
 """
