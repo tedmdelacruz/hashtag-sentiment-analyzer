@@ -35,6 +35,8 @@ custom:
     results_page: sentiment-results-page
   pythonRequirements:
     dockerizePip: non-linux
+    useDownloadCache: true
+    useStaticCache: true
   
 package:
   exclude:
