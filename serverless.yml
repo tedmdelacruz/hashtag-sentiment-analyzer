@@ -25,6 +25,10 @@ provider:
     Action:
       - comprehend:DetectSentiment
     Resource: ["*"]
+  - Effect: Allow
+    Action:
+      - ssm:GetParameter
+    Resource: ["*"]
     
 custom:
   analyzed_hashtag: PyConAPAC2019
@@ -52,9 +56,7 @@ functions:
       fetched_tweets_table: ${self:custom.dynamodb_tables.fetched_tweets}
       hashtag: ${self:custom.analyzed_hashtag}
       twitter_api_consumer_key: ${ssm:twitter_api_consumer_key}
-      twitter_api_consumer_secret: ${ssm:twitter_api_consumer_secret}
       twitter_api_access_token_key: ${ssm:twitter_api_access_token_key}
-      twitter_api_access_token_secret: ${ssm:twitter_api_access_token_secret}
     events:
       - schedule: rate(10 minutes)
   TweetSentimentAnalyzer:

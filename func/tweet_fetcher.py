@@ -10,9 +10,7 @@ FETCHED_TWEETS_TABLE = os.environ['fetched_tweets_table']
 HASHTAG = os.environ['hashtag']
 
 TWITTER_API_CONSUMER_KEY = os.environ['twitter_api_consumer_key']
-TWITTER_API_CONSUMER_SECRET = os.environ['twitter_api_consumer_secret']
 TWITTER_API_ACCESS_TOKEN_KEY = os.environ['twitter_api_access_token_key']
-TWITTER_API_ACCESS_TOKEN_SECRET = os.environ['twitter_api_access_token_secret']
 
 ssm_client = boto3.client('ssm')
 def get_secret(key):
@@ -22,8 +20,8 @@ def get_secret(key):
     )
     return response['Parameter']['Value']
 
-consumer_secret = get_secret(TWITTER_API_CONSUMER_SECRET)
-access_token_secret = get_secret(TWITTER_API_ACCESS_TOKEN_SECRET)
+TWITTER_API_CONSUMER_SECRET = get_secret('twitter_api_consumer_secret')
+TWITTER_API_ACCESS_TOKEN_SECRET = get_secret('twitter_api_access_token_secret')
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -49,9 +47,9 @@ def format_tweet(tweet):
 def get_tweets(hashtag):
     """Fetch tweets using specified hashtag using Twitter API"""
     api = twitter.Api(consumer_key=TWITTER_API_CONSUMER_KEY,
-                      consumer_secret=consumer_secret,
+                      consumer_secret=TWITTER_API_CONSUMER_SECRET,
                       access_token_key=TWITTER_API_ACCESS_TOKEN_KEY,
-                      access_token_secret=access_token_secret)
+                      access_token_secret=TWITTER_API_ACCESS_TOKEN_SECRET)
 
     results = api.GetSearch(
         raw_query=f"q=%23{HASHTAG}%20&result_type=recent&since=2019-01-01&count=100")
