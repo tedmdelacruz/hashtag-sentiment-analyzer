@@ -9,6 +9,7 @@ provider:
     service: hashtag-sentiment-analyzer
   environment:
     aws_region: ${self:provider.region}
+    hashtag: ${self:custom.analyzed_hashtag}
   iamRoleStatements:
   - Effect: Allow
     Action:
@@ -23,11 +24,9 @@ provider:
     ]
   - Effect: Allow
     Action:
-      - comprehend:DetectSentiment
-    Resource: ["*"]
-  - Effect: Allow
-    Action:
+      - s3:PutObject
       - ssm:GetParameter
+      - comprehend:DetectSentiment
     Resource: ["*"]
     
 custom:
@@ -54,7 +53,6 @@ functions:
     description: Periodially fetches tweets related with hashtag defined and stores into the ${self:custom.dynamodb_tables.fetched_tweets} DynamoDB table for later analysis
     environment:
       fetched_tweets_table: ${self:custom.dynamodb_tables.fetched_tweets}
-      hashtag: ${self:custom.analyzed_hashtag}
       twitter_api_consumer_key: ${ssm:twitter_api_consumer_key}
       twitter_api_access_token_key: ${ssm:twitter_api_access_token_key}
     events:
@@ -84,7 +82,7 @@ functions:
               - AnalyzedTweetsTable
               - StreamArn
     environment:
-      bucket: ${self:custom.buckets.results_page}
+      results_page_bucket: ${self:custom.buckets.results_page}
 
 resources:
   Resources:
@@ -102,7 +100,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
+          StreamViewType: NEW_IMAGE
 
     AnalyzedTweetsTable:
       Type: AWS::DynamoDB::Table
@@ -118,7 +116,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
+          StreamViewType: NEW_IMAGE
 
     ResultsPageBucket:
       Type: AWS::S3::Bucket

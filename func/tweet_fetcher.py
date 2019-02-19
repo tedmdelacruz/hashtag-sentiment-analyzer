@@ -52,7 +52,7 @@ def get_tweets(hashtag):
                       access_token_secret=TWITTER_API_ACCESS_TOKEN_SECRET)
 
     results = api.GetSearch(
-        raw_query=f"q=%23{HASHTAG}%20&result_type=recent&since=2019-01-01&count=100")
+        raw_query=f"q=%23{HASHTAG}%20-RT&result_type=recent&since=2019-01-01&count=100")
 
     return [
         format_tweet(tweet.AsDict())
