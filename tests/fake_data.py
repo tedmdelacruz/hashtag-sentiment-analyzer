@@ -22,7 +22,7 @@ fake_tweets = [
     }
 ]
 
-fake_insert = {
+fake_insert_event = {
     'Records': [
         {
             'dynamodb': {

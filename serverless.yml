@@ -72,11 +72,19 @@ functions:
               - StreamArn
     environment:
       analyzed_tweets_table: ${self:custom.dynamodb_tables.analyzed_tweets}
-      
   ResultsPageGenerator:
     name: results_page_generator
+    description: Listens to INSERT events in the ${self:custom.dynamodb_tables.analyzed_tweets} and generates a simple webpage hosted on S3 for presenting the sentiment analysis
     handler: func/results_page_generator.lambda_handler
-
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - AnalyzedTweetsTable
+              - StreamArn
+    environment:
+      bucket: ${self:custom.buckets.results_page}
 
 resources:
   Resources:
