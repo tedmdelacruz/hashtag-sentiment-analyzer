@@ -20,6 +20,7 @@ def lambda_handler(event, context):
 
     template_file = open(os.path.join(curr_path, 'tmpl', 'index.html'))
     template = Template(template_file.read())
+    logger.info(tweets)
     rendered_page = template.render(hashtag=HASHTAG, tweets=tweets)
 
     s3 = boto3.client('s3', region_name=AWS_REGION)

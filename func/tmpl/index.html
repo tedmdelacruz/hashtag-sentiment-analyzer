@@ -23,7 +23,8 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="display-3">#{{ hashtag }} <span class="text-info">Sentiments</span></h1>
+        <h1 class="display-3">#{{ hashtag }}</h1>
+        <h3 class="display-4 text-info">Sentiments</h3>
         {% for tweet in tweets %}
         <div class="card">
             <div class="card-header sentiment-{{ tweet['sentiment']|lower }}">{{ tweet['sentiment'] }}</div>
