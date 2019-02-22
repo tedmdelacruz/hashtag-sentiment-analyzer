@@ -6,9 +6,9 @@ Working demo http://bit.ly/HashtagSentimentAnalyzer
 
 ## Stack
 
-- AWS Lambda for the serverless provider
+- AWS Lambda for the serverless computing provider
 - AWS Comprehend for retrieving the sentiment analysis
-- [Serverless Framework](https://serverless.com) for developing and deploying the serverless application AWS Lambda
+- [Serverless Framework](https://serverless.com) for developing and deploying the serverless application on AWS Lambda
 
 ## Setup
 
