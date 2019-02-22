@@ -17,11 +17,19 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
+    if 'Records' not in event:
+        logger.info('No records found')
+        return
+
     comprehend = boto3.client(service_name='comprehend',
         region_name=AWS_REGION)
 
     results = []
     for record in event['Records']:
+        if 'NewImage' not in record['dynamodb']:
+            logger.info(record['dynamodb'])
+            continue
+
         tweet = unmarshall(record['dynamodb']['NewImage'])
         text = tweet['text']
         result = comprehend.detect_sentiment(Text=text,
@@ -30,6 +38,10 @@ def lambda_handler(event, context):
         logger.info(f'Analysis results: {result}')
         tweet['sentiment'] = result['Sentiment']
         results.append(tweet)
+    
+    if not results:
+        logger.info('No records analyzed')
+        return
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(ANALYZED_TWEETS_TABLE)

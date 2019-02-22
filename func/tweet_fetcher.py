@@ -6,6 +6,7 @@ import logging
 import os
 import twitter
 
+NUM_TWEETS = 10
 FETCHED_TWEETS_TABLE = os.environ['fetched_tweets_table']
 HASHTAG = os.environ['hashtag']
 
@@ -51,8 +52,9 @@ def get_tweets(hashtag):
                       access_token_key=TWITTER_API_ACCESS_TOKEN_KEY,
                       access_token_secret=TWITTER_API_ACCESS_TOKEN_SECRET)
 
-    results = api.GetSearch(
-        raw_query=f"q=%23{HASHTAG}%20-RT&result_type=recent&since=2019-01-01&count=100")
+    query = (f"q=%23{HASHTAG}%20-RT"
+             f"&result_type=recent&since=2019-01-01&count={NUM_TWEETS}")
+    results = api.GetSearch(raw_query=query)
 
     return [
         format_tweet(tweet.AsDict())

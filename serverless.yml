@@ -35,7 +35,10 @@ custom:
     fetched_tweets: fetched_tweets
     analyzed_tweets: analyzed_tweets
   buckets:
-    results_page: sentiment-results-page
+    results_page: hashtag-sentiments
+  remover:
+     buckets:
+      - ${self:custom.buckets.results_page}
   pythonRequirements:
     dockerizePip: non-linux
     useDownloadCache: true
@@ -145,3 +148,4 @@ resources:
                 
 plugins:
   - serverless-python-requirements
+  - serverless-s3-remover
