@@ -12,3 +12,4 @@ install:
 
 script:
 - nosetests -v
+- echo 'sure, the tests are "passing"'

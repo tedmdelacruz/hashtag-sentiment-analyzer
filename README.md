@@ -1,5 +1,7 @@
 # Hashtag Sentiment Analyzer
 
+[![Build Status](https://travis-ci.com/tedmdelacruz/hashtag-sentiment-analyzer.svg?branch=master)](https://travis-ci.com/tedmdelacruz/hashtag-sentiment-analyzer)
+
 Analyzes the sentiments of a given hashtag using AWS Comprehend
 
 Working demo http://bit.ly/HashtagSentimentAnalyzer
