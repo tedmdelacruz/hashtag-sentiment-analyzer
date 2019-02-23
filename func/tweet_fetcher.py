@@ -6,7 +6,7 @@ import logging
 import os
 import twitter
 
-NUM_TWEETS = 10
+NUM_TWEETS = 50
 FETCHED_TWEETS_TABLE = os.environ['fetched_tweets_table']
 HASHTAG = os.environ['hashtag']
 
