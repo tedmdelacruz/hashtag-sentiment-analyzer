@@ -35,6 +35,7 @@ def format_tweet(tweet):
         'tweet_id': tweet['id'],
         'hashtag': HASHTAG,
         'text': tweet['text'],
+        'created_at': tweet['created_at'],
         'user': {
             'user_id': user['id'],
             'name': user['name'],
