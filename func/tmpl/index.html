@@ -23,8 +23,11 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="display-3">#{{ hashtag }}</h1>
-        <h3 class="display-4 text-info">Sentiments</h3>
+        <div class="text-center mt-3 mb-3">
+            <h1 class="display-5 text-info">#{{ hashtag }}</h1>
+            <h3>Sentiments</h3>
+            <a href="https://github.com/tedmdelacruz/hashtag-sentiment-analyzer" class="text-muted"><small>Source Code</small></a>
+        </div>
         {% for tweet in tweets %}
         <div class="card">
             <div class="card-header sentiment-{{ tweet['sentiment']|lower }}">{{ tweet['sentiment'] }}</div>
