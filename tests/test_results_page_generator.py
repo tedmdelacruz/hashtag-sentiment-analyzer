@@ -1,7 +1,7 @@
 from unittest import TestCase
 # from func import tweet_sentiment_analyzer
 
-class TestTweetSentimentAnalyzer(TestCase):
+class TestResultsPageGenerator(TestCase):
 
     def test_lambda_handler(self):
         # @TODO
