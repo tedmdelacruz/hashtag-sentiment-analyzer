@@ -30,4 +30,14 @@ sls deploy
 
 # Removes the deployed stack
 sls remove
+
+# Install development dependencies
+pip install -t dev_requirements.txt
+
+# Run tests (wip)
+nosetests -vs
 ```
+
+## License
+
+This work is licensed under [The MIT License](https://opensource.org/licenses/MIT).
