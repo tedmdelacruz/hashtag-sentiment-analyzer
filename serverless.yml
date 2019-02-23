@@ -86,6 +86,7 @@ functions:
               - StreamArn
     environment:
       results_page_bucket: ${self:custom.buckets.results_page}
+      analyzed_tweets_table: ${self:custom.dynamodb_tables.analyzed_tweets}
 
 resources:
   Resources:
