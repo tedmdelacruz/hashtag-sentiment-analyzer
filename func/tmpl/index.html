@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:url" content="http://hashtag-sentiments.s3-website-ap-southeast-1.amazonaws.com" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Hashtag Sentiment Analyzer" />
+    <meta property="og:description" content="Analyzes the sentiments of a Twitter hashtag using AWS Comprehend" />
+    <meta property="og:image" content="https://i.imgur.com/LFwYxvI.png" />
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Hashtag Sentiment Analyzer</title>
     <style>
@@ -37,7 +43,10 @@
                     <footer class="blockquote-footer">
                         <img class="profile-img" src="{{ tweet['user']['profile_image_url']|e }}">
                         <a href="https://twitter.com/{{ tweet['user']['handle'] }}">
-                            @{{ tweet['user']['handle'] }} <span class="text-secondary">{{ tweet['user']['name'] }} | {{ tweet['created_at'] }}</span>
+                            @{{ tweet['user']['handle'] }} <span class="text-secondary">{{ tweet['user']['name'] }}</span>
+                        </a> | 
+                        <a href="https://twitter.com/{{ tweet['user']['handle'] }}/status/{{ tweet['tweet_id'] }}">
+                            <span class="text-muted">{{ tweet['created_at'] }}</span>
                         </a>
                     </footer>
                 </blockquote>
